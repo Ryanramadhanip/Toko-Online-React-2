@@ -44,6 +44,40 @@ class Order extends Component {
                 console.log(error);
             });
     }
+
+    Accept = (id_orders) => {
+        if (window.confirm("Apakah anda yakin ingin menerima orderan ini?")){
+            $("#loading").toast("show");
+            let url = "http://localhost/tokonline/public/orders/accept/" + id_orders;
+            axios.post(url)
+            .then(response => {
+                $("#loading").toast("hide");
+                this.setState({message: response.data.message});
+                $("message").toast("show");
+                this.get_order();
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        }
+    }
+
+    Decline = (id_orders) => {
+        if (window.confirm("Apakah anda yakin ingin menolak orderan ini?")){
+            $("#loading").toast("show");
+            let url = "http://localhost/tokonline/public/orders/decline/" + id_orders;
+            axios.post(url)
+            .then(response => {
+                $("#loading").toast("hide");
+                this.setState({message: response.data.message});
+                $("message").toast("show");
+                this.get_order();
+            })
+            .catch(error => {
+                console.log(error);
+            });
+        }
+    }
     
     componentDidMount = () => {
         this.get_order();
@@ -91,9 +125,8 @@ class Order extends Component {
                         <table className="table">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
-                                    <th>User</th>
-                                    <th>Address</th>
+                                    <th>ID User</th>
+                                    <th>ID Address</th>
                                     <th>Total</th>
                                     <th>Bukti bayar</th>
                                     <th>Status</th>
@@ -106,18 +139,29 @@ class Order extends Component {
                                 {this.state.order.map((item, index) => {
                                     return (
                                         <tr key={index}>
-                                            <td>{item.id}</td>
-                                            <td>{item.name}</td>
-                                            <td>{item.jalan}</td>
+                                            <td>{item.id_user}</td>
+                                            <td>{item.id_alamat}</td>
                                             <td>{item.total}</td>
                                             <td>{item.bukti_bayar}</td>
                                             <td>{item.status}</td>
-                                            <td>{item.detail_order}</td>
-                                            <button className="m-1 btn btn-sm btn-success" onClick={() => this.Edit(item)}>
+                                            <td>
+                                                {item.detail.map((it) => {
+                                                    return (
+                                                        <ul key={it.id_orders}>
+                                                            <li>
+                                                                {it.nama_product}
+                                                                ({it.quantity})
+                                                            </li>
+                                                        </ul>
+                                                    )
+                                                })}
+                                            </td>
+                                            <button className="m-1 btn btn-sm btn-success"
+                                                onClick={() => this.Accept(item.id)}>
                                                 <span>Accept</span>
                                             </button>
                                             <button className="m-1 btn btn-sm btn-danger"
-                                                onClick={() => this.Drop(item.id)}>
+                                                onClick={() => this.Decline(item.id)}>
                                                 <span>Decline</span>
                                             </button>
 
@@ -126,8 +170,6 @@ class Order extends Component {
                                 })}
                             </tbody>
                         </table>
-
-                        {/* tombol tambah */}
                     </div>
                 </div>
 
