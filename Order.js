@@ -2,18 +2,21 @@ import React, { Component } from "react";
 import axios from "axios";
 import $ from "jquery";
 import Toast from "../component/Toast";
+import Modal from "../component/Modal";
 
 class Order extends Component {
     constructor() {
         super();
         this.state = {
             order: [],
+            id_orders: "",
             id: "",
             id_alamat: "",
             id_user: "",
             total: "",
             bukti_bayar: null,
             status: "",
+            detail: "",
             action: "",
             message: ""
         }
@@ -45,10 +48,10 @@ class Order extends Component {
             });
     }
 
-    Accept = (id_orders) => {
+    Accept = (id) => {
         if (window.confirm("Apakah anda yakin ingin menerima orderan ini?")){
             $("#loading").toast("show");
-            let url = "http://localhost/tokonline/public/orders/accept/" + id_orders;
+            let url = "http://localhost/tokonline/public/accept/" + id;
             axios.post(url)
             .then(response => {
                 $("#loading").toast("hide");
@@ -62,10 +65,10 @@ class Order extends Component {
         }
     }
 
-    Decline = (id_orders) => {
+    Decline = (id) => {
         if (window.confirm("Apakah anda yakin ingin menolak orderan ini?")){
             $("#loading").toast("show");
-            let url = "http://localhost/tokonline/public/orders/decline/" + id_orders;
+            let url = "http://localhost/tokonline/public/decline/" + id;
             axios.post(url)
             .then(response => {
                 $("#loading").toast("hide");
@@ -101,6 +104,7 @@ class Order extends Component {
         }
     }
     render() {
+        console.log(this.state.order)
         return (
             <div className="container">
                 <div className="card mt-2">
@@ -125,7 +129,8 @@ class Order extends Component {
                         <table className="table">
                             <thead>
                                 <tr>
-                                    <th>ID User</th>
+                                    <th>ID</th>
+                                    <th>User</th>
                                     <th>ID Address</th>
                                     <th>Total</th>
                                     <th>Bukti bayar</th>
@@ -139,7 +144,8 @@ class Order extends Component {
                                 {this.state.order.map((item, index) => {
                                     return (
                                         <tr key={index}>
-                                            <td>{item.id_user}</td>
+                                            <td>{item.id_order}</td>
+                                            <td>{item.username}</td>
                                             <td>{item.id_alamat}</td>
                                             <td>{item.total}</td>
                                             <td>{item.bukti_bayar}</td>
@@ -149,7 +155,7 @@ class Order extends Component {
                                                     return (
                                                         <ul key={it.id_orders}>
                                                             <li>
-                                                                {it.nama_product}
+                                                                {it.nama_produk}
                                                                 ({it.quantity})
                                                             </li>
                                                         </ul>
@@ -157,11 +163,11 @@ class Order extends Component {
                                                 })}
                                             </td>
                                             <button className="m-1 btn btn-sm btn-success"
-                                                onClick={() => this.Accept(item.id)}>
+                                                onClick={() => this.Accept(item.id_order)}>
                                                 <span>Accept</span>
                                             </button>
                                             <button className="m-1 btn btn-sm btn-danger"
-                                                onClick={() => this.Decline(item.id)}>
+                                                onClick={() => this.Decline(item.id_order)}>
                                                 <span>Decline</span>
                                             </button>
 
@@ -170,6 +176,23 @@ class Order extends Component {
                                 })}
                             </tbody>
                         </table>
+                        <Modal id="modal_accept" title="Accept" bg-header="warning" text_header="white">
+                            <form onSubmit={this.Accept}>
+                                <input type="text" className="form-control" name="status" value={this.state.status} onChange={this.bind} placeholder="Status" required />
+                                <button type="submit" className="btn btn-dark m-2">
+                                    <span className="fa fa-check-circle"></span> Save
+                            </button>
+                            </form>
+                        </Modal>
+
+                        <Modal id="modal_decline" title="Decline" bg-header="warning" text_header="white">
+                            <form onSubmit={this.Decline}>
+                                <input type="text" className="form-control" name="status" value={this.state.status} onChange={this.bind} placeholder="Status" required />
+                                <button type="submit" className="btn btn-dark m-2">
+                                    <span className="fa fa-check-circle"></span> Save
+                            </button>
+                            </form>
+                        </Modal>
                     </div>
                 </div>
 
